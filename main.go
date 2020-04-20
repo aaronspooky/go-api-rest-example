@@ -20,6 +20,7 @@ func main() {
 	router.HandleFunc("/event", createEvent).Methods("POST")
 	router.HandleFunc("/events/{id}", getOneEvent).Methods("GET")
 	router.HandleFunc("/events", getAllEvents).Methods("GET")
+	router.HandleFunc("/events/{id}", updateEvent).Methods("PATCH")
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
 
@@ -65,4 +66,25 @@ func getOneEvent(w http.ResponseWriter, r *http.Request) {
 
 func getAllEvents(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(events)
+}
+
+func updateEvent(w http.ResponseWriter, r *http.Request) {
+	eventID := mux.Vars(r)["id"]
+	var updatedEvent event
+
+	reqBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		fmt.Fprint(w, "Update request null")
+	}
+
+	json.Unmarshal(reqBody, &updatedEvent)
+
+	for i, singleEvent := range events {
+		if singleEvent.ID == eventID {
+			singleEvent.Title = updatedEvent.Title
+			singleEvent.Description = updatedEvent.Description
+			events = append(events[:i], singleEvent)
+			json.NewEncoder(w).Encode(singleEvent)
+		}
+	}
 }
