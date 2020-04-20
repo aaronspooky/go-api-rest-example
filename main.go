@@ -21,6 +21,7 @@ func main() {
 	router.HandleFunc("/events/{id}", getOneEvent).Methods("GET")
 	router.HandleFunc("/events", getAllEvents).Methods("GET")
 	router.HandleFunc("/events/{id}", updateEvent).Methods("PATCH")
+	router.HandleFunc("/events/{id}", deleteEvent).Methods("DELETE")
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
 
@@ -85,6 +86,17 @@ func updateEvent(w http.ResponseWriter, r *http.Request) {
 			singleEvent.Description = updatedEvent.Description
 			events = append(events[:i], singleEvent)
 			json.NewEncoder(w).Encode(singleEvent)
+		}
+	}
+}
+
+func deleteEvent(w http.ResponseWriter, r *http.Request) {
+	eventID := mux.Vars(r)["id"]
+
+	for i, singleEvent := range events{
+		if singleEvent.ID == eventID {
+			events = append(events[:i], events[i+1:]...)
+			fmt.Fprint(w, "The event with ID has been deleted success")
 		}
 	}
 }
